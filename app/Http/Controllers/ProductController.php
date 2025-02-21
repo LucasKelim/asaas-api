@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -63,5 +65,45 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+    }
+
+    public function buy(Product $product)
+    {
+        $client = new Client();
+
+        if (Auth::user()->customer) {
+            $response = $client->request('POST', 'https://api-sandbox.asaas.com/v3/payments', [
+                'body' => json_encode([
+                    'billingType' => 'UNDEFINED',
+                    'customer' => Auth::user()->customer->customer,
+                    'value' => $product->price,
+                    'dueDate' => date('Y-m-d'),
+                    'description' => $product->name,
+                    'externalReference' => $product->id,
+                ]),
+                'headers' => [
+                    'accept' => 'application/json',
+                    'access_token' => env("ASAAS_ACCESS_TOKEN"),
+                    'content-type' => 'application/json',
+                ]
+            ]);
+
+            dd($response->getBody());
+        }
+
+        $response = $client->request('POST', 'https://api-sandbox.asaas.com/v3/customers', [
+            'body' => json_encode([
+                'name' => Auth::user()->name,
+                'cpfCnpj' => '276.648.650-00',
+                'email' => Auth::user()->email,
+            ]),
+            'headers' => [
+                'accept' => 'application/json',
+                'access_token' => env("ASAAS_ACCESS_TOKEN"),
+                'content-type' => 'application/json',
+            ]
+        ]);
+
+        dd($response->getBody());
     }
 }

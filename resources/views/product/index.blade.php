@@ -18,11 +18,9 @@
                                 <p class="text-sm text-gray-600">R$ {{ $product->price }}</p>
                             </div>
                             <div class="flex space-x-2">
-                                {{-- <a href="{{ route('products.buy', $product->id) }}"> --}}
-                                    <x-primary-button>
-                                        Buy
-                                    </x-primary-button>
-                                {{-- </a> --}}
+                                <a href="{{ route('products.buy',  $product->id) }}">
+                                    <x-primary-button>Buy</x-primary-button>
+                                </a>
                             </div>
                         </div>
                     @empty
